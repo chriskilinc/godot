@@ -1,9 +1,0 @@
-[gd_resource type="Resource" load_steps=3 format=3 uid="uid://dq35xkc6w1j6e"]
-
-[ext_resource type="Texture2D" uid="uid://di14uffpwd5v0" path="res://Art/icon.svg" id="1_hirt6"]
-[ext_resource type="Script" uid="uid://76w8txfkgtwm" path="res://Inventory/InventoryItem.cs" id="2_iih5s"]
-
-[resource]
-script = ExtResource("2_iih5s")
-Name = "foo"
-Texture = ExtResource("1_hirt6")
