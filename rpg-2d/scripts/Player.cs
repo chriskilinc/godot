@@ -18,22 +18,20 @@ public partial class Player : CharacterBody2D
 
   public override void _PhysicsProcess(double delta)
   {
-    Vector2 velocity = Velocity;
 
     // Get the input direction and normalize it to have consistent speed in all directions
     Vector2 inputDirection = Input.GetVector("player_left", "player_right", "player_up", "player_down");
     if (inputDirection != Vector2.Zero)
     {
       PlayerState = "walking";
-      velocity = inputDirection.Normalized() * Speed;
+      Velocity = inputDirection.Normalized() * Speed;
     }
     else
     {
       PlayerState = "idle";
-      velocity = Vector2.Zero;
+      Velocity = Vector2.Zero;
     }
 
-    Velocity = velocity;
 
     MoveAndSlide();
     PlayAnimation(inputDirection);
