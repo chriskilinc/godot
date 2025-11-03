@@ -4,9 +4,12 @@ using System;
 public partial class Player : CharacterBody2D
 {
   [Export]
-  public int Speed = 100;
+  public int Speed = 125;
 
   public string PlayerState = "Idle"; // TODO
+
+  [Export]
+  private Inventory inventory;
 
   private AnimatedSprite2D animatedSprite;
 

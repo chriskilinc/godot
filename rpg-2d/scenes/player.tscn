@@ -1,7 +1,9 @@
-[gd_scene load_steps=69 format=3 uid="uid://b563y50iqnlmd"]
+[gd_scene load_steps=71 format=3 uid="uid://b563y50iqnlmd"]
 
 [ext_resource type="Texture2D" uid="uid://d7ulfasgkg1r" path="res://assets/player/player-green.png" id="1_3vyb7"]
 [ext_resource type="Script" uid="uid://bb7ff7nfaoja3" path="res://scripts/Player.cs" id="1_g2els"]
+[ext_resource type="Resource" uid="uid://c1tftkh68du3s" path="res://Inventory/player_inventory.tres" id="2_dqkch"]
+[ext_resource type="PackedScene" uid="uid://d1aax4xlnndwg" path="res://Inventory/inventory_ui.tscn" id="4_qlg0r"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_oprun"]
 atlas = ExtResource("1_3vyb7")
@@ -549,6 +551,7 @@ radius = 4.0
 
 [node name="Player" type="CharacterBody2D"]
 script = ExtResource("1_g2els")
+inventory = ExtResource("2_dqkch")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
 sprite_frames = SubResource("SpriteFrames_u8vuu")
@@ -565,3 +568,9 @@ limit_left = -500
 limit_top = -400
 limit_right = 500
 limit_bottom = 400
+
+[node name="InventoryUI" parent="." instance=ExtResource("4_qlg0r")]
+offset_left = -44.0
+offset_top = -79.0
+offset_right = 44.0
+offset_bottom = -15.0

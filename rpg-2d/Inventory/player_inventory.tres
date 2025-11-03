@@ -1,0 +1,9 @@
+[gd_resource type="Resource" load_steps=4 format=3 uid="uid://c1tftkh68du3s"]
+
+[ext_resource type="Script" uid="uid://bh8mpb72mjalx" path="res://Inventory/InventoryItem.cs" id="1_5tggb"]
+[ext_resource type="Resource" uid="uid://brsym76vjkm11" path="res://Inventory/Items/apple.tres" id="2_k7d1n"]
+[ext_resource type="Script" uid="uid://juglx4pp5ekl" path="res://Inventory/Inventory.cs" id="3_u1pke"]
+
+[resource]
+script = ExtResource("3_u1pke")
+Items = Array[ExtResource("1_5tggb")]([ExtResource("2_k7d1n"), null, ExtResource("2_k7d1n"), null, null, null, null, null, null, null, null, null])

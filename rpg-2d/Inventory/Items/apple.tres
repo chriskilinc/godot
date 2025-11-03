@@ -1,0 +1,10 @@
+[gd_resource type="Resource" load_steps=3 format=3 uid="uid://brsym76vjkm11"]
+
+[ext_resource type="Texture2D" uid="uid://g6jytl7xh74w" path="res://assets/apple-icon.png" id="1_dop0b"]
+[ext_resource type="Script" uid="uid://bh8mpb72mjalx" path="res://Inventory/InventoryItem.cs" id="1_f2i7l"]
+
+[resource]
+script = ExtResource("1_f2i7l")
+Name = "Apple"
+Description = "Yummy!"
+Icon = ExtResource("1_dop0b")
