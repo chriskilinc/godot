@@ -1,3 +1,33 @@
 [gd_scene format=3 uid="uid://c1o5rejqqb2at"]
 
+[ext_resource type="Texture2D" uid="uid://eyf2ap8hpglw" path="res://assets/PNG/playerShip1_blue.png" id="1_0xm2m"]
+[ext_resource type="Script" uid="uid://jdpgubplx2hd" path="res://Player.cs" id="2_h2yge"]
+[ext_resource type="Texture2D" uid="uid://dvwra6sjl7j6u" path="res://assets/PNG/Meteors/meteorBrown_big1.png" id="3_h2yge"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_0xm2m"]
+radius = 37.01351
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_h2yge"]
+radius = 41.0
+
 [node name="Main" type="Node" unique_id=1516318950]
+
+[node name="Camera2D" type="Camera2D" parent="." unique_id=396998139]
+
+[node name="Player" type="RigidBody2D" parent="." unique_id=1784298116]
+script = ExtResource("2_h2yge")
+
+[node name="Sprite2D" type="Sprite2D" parent="Player" unique_id=1484574138]
+texture = ExtResource("1_0xm2m")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Player" unique_id=1553871605]
+shape = SubResource("CircleShape2D_0xm2m")
+
+[node name="Astroid_Big" type="RigidBody2D" parent="." unique_id=790407413]
+position = Vector2(-390, -192)
+
+[node name="Sprite2D" type="Sprite2D" parent="Astroid_Big" unique_id=1123732320]
+texture = ExtResource("3_h2yge")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Astroid_Big" unique_id=978579018]
+shape = SubResource("CircleShape2D_h2yge")
