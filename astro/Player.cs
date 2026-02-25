@@ -1,15 +1,14 @@
 using Godot;
 using System;
 
-public partial class Player : RigidBody2D
+public partial class Player : RigidBody2DWrap
 {
-
     int force = 400;
     float rotationSpeed = MathF.Tau * 0.75f; // 270 degrees per second
 
     public override void _Ready()
     {
-        // Called every time the node is added to the scene.
+        base._Ready();
     }
 
     public override void _PhysicsProcess(double delta)

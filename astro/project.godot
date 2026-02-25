@@ -15,6 +15,12 @@ run/main_scene="uid://c1o5rejqqb2at"
 config/features=PackedStringArray("4.6", "C#", "Forward Plus")
 config/icon="res://icon.svg"
 
+[display]
+
+window/size/viewport_width=800
+window/size/viewport_height=600
+window/stretch/mode="canvas_items"
+
 [dotnet]
 
 project/assembly_name="astro"

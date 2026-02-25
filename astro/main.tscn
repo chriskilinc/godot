@@ -2,6 +2,7 @@
 
 [ext_resource type="Texture2D" uid="uid://eyf2ap8hpglw" path="res://assets/PNG/playerShip1_blue.png" id="1_0xm2m"]
 [ext_resource type="Script" uid="uid://jdpgubplx2hd" path="res://Player.cs" id="2_h2yge"]
+[ext_resource type="Script" uid="uid://vwqh3wvdn21p" path="res://Astroid.cs" id="3_1bvp3"]
 [ext_resource type="Texture2D" uid="uid://dvwra6sjl7j6u" path="res://assets/PNG/Meteors/meteorBrown_big1.png" id="3_h2yge"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_0xm2m"]
@@ -13,8 +14,10 @@ radius = 41.0
 [node name="Main" type="Node" unique_id=1516318950]
 
 [node name="Camera2D" type="Camera2D" parent="." unique_id=396998139]
+position = Vector2(400, 300)
 
 [node name="Player" type="RigidBody2D" parent="." unique_id=1784298116]
+position = Vector2(400, 300)
 script = ExtResource("2_h2yge")
 
 [node name="Sprite2D" type="Sprite2D" parent="Player" unique_id=1484574138]
@@ -24,10 +27,31 @@ texture = ExtResource("1_0xm2m")
 shape = SubResource("CircleShape2D_0xm2m")
 
 [node name="Astroid_Big" type="RigidBody2D" parent="." unique_id=790407413]
-position = Vector2(-390, -192)
+position = Vector2(104, 104)
+script = ExtResource("3_1bvp3")
 
 [node name="Sprite2D" type="Sprite2D" parent="Astroid_Big" unique_id=1123732320]
 texture = ExtResource("3_h2yge")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Astroid_Big" unique_id=978579018]
+shape = SubResource("CircleShape2D_h2yge")
+
+[node name="Astroid_Big2" type="RigidBody2D" parent="." unique_id=1345660335]
+position = Vector2(678, 188)
+script = ExtResource("3_1bvp3")
+
+[node name="Sprite2D" type="Sprite2D" parent="Astroid_Big2" unique_id=1041373125]
+texture = ExtResource("3_h2yge")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Astroid_Big2" unique_id=1133283231]
+shape = SubResource("CircleShape2D_h2yge")
+
+[node name="Astroid_Big3" type="RigidBody2D" parent="." unique_id=1123787884]
+position = Vector2(590, 496)
+script = ExtResource("3_1bvp3")
+
+[node name="Sprite2D" type="Sprite2D" parent="Astroid_Big3" unique_id=236130611]
+texture = ExtResource("3_h2yge")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Astroid_Big3" unique_id=51134018]
 shape = SubResource("CircleShape2D_h2yge")
