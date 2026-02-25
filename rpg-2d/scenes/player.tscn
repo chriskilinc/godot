@@ -550,6 +550,7 @@ animations = [{
 radius = 4.0
 
 [node name="Player" type="CharacterBody2D"]
+z_index = 1
 script = ExtResource("1_g2els")
 inventory = ExtResource("2_dqkch")
 

@@ -11,6 +11,9 @@ public partial class InventoryUI : Control
 
   public override void _Ready()
   {
+    // add signal listener
+    inventory.Connect(nameof(Inventory.ItemInserted), new Callable(this, nameof(OnItemInserted)));
+
     Visible = IsOpen;
     // preload player inventory
     inventory = GD.Load<Inventory>("res://Inventory/player_inventory.tres");
@@ -43,6 +46,12 @@ public partial class InventoryUI : Control
     }
   }
 
+  private void OnItemInserted()
+  {
+    GD.Print($"InventoryUI: ItemInserted signal received. Updating slots.");
+    UpdateSlots();
+  }
+
   private void Close()
   {
     IsOpen = false;
@@ -60,10 +69,10 @@ public partial class InventoryUI : Control
   {
     for (int i = 0; i < slots.Count; i++)
     {
-      if (i < inventory.Items.Count)
+      if (i < inventory.Slots.Count)
       {
         // GD.Print($"Updating slot {i} with item {inventory.Items[i].Name}");
-        slots[i].Update(inventory.Items[i]);
+        slots[i].Update(inventory.Slots[i]);
       }
       else
       {
@@ -73,3 +82,6 @@ public partial class InventoryUI : Control
     }
   }
 }
+
+
+// https://youtu.be/fyRcR6C5H2g?si=FCao4mGFZmKLLPvs&t=871

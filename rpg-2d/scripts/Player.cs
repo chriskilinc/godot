@@ -35,7 +35,6 @@ public partial class Player : CharacterBody2D
       Velocity = Vector2.Zero;
     }
 
-
     MoveAndSlide();
     PlayAnimation(inputDirection);
   }
@@ -63,5 +62,11 @@ public partial class Player : CharacterBody2D
         animation = "walk-north";
     }
     animatedSprite.Play(animation);
+  }
+
+  public void Collect(InventoryItem item)
+  {
+    GD.Print($"Player: Collecting item {item.Name}");
+    inventory.InsertItem(item, 1);
   }
 }

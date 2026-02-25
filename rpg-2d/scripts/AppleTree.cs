@@ -13,6 +13,11 @@ public partial class AppleTree : Node2D
   private Timer GrowTimer;
   private Marker2D AppleDropMarker;
 
+  [Export]
+  private InventoryItem appleItem;
+
+  private Player player;
+
   public override void _Ready()
   {
     AnimatedSprite = GetNode<AnimatedSprite2D>("AnimatedSprite2D");
@@ -56,6 +61,7 @@ public partial class AppleTree : Node2D
     {
       PlayerInArea = true;
       GD.Print("Player entered pickable area");
+      player = (Player)body;
     }
   }
 
@@ -65,6 +71,7 @@ public partial class AppleTree : Node2D
     {
       PlayerInArea = false;
       GD.Print("Player exited pickable area");
+      player = null;
     }
   }
 
@@ -83,6 +90,7 @@ public partial class AppleTree : Node2D
     var appleInstance = AppleCollectableScene.Instantiate<StaticBody2D>();
     appleInstance.GlobalPosition = AppleDropMarker.GlobalPosition;
     GetParent().AddChild(appleInstance);
+    player.Collect(appleItem);
     await ToSignal(GetTree().CreateTimer(3), "timeout");
     GrowTimer.Start();
   }
