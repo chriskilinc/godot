@@ -40,4 +40,9 @@ public partial class Player : RigidBody2DWrap
         {
         }
     }
+
+    public void OnHit(Node body)
+    {
+        GD.Print("Player hit by " + body.Name + "!");
+    }
 }

@@ -1,0 +1,16 @@
+[gd_scene format=3 uid="uid://c8osdbawcavsk"]
+
+[ext_resource type="Script" uid="uid://vwqh3wvdn21p" path="res://Astroid.cs" id="1_dhfpl"]
+[ext_resource type="Texture2D" uid="uid://dvwra6sjl7j6u" path="res://assets/PNG/Meteors/meteorBrown_big1.png" id="2_vfidx"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_h2yge"]
+radius = 41.0
+
+[node name="Astroid_Big" type="RigidBody2D" unique_id=1998320555]
+script = ExtResource("1_dhfpl")
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=1744882727]
+texture = ExtResource("2_vfidx")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1826190321]
+shape = SubResource("CircleShape2D_h2yge")
