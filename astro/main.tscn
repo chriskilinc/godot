@@ -1,21 +1,6 @@
 [gd_scene format=3 uid="uid://c1o5rejqqb2at"]
 
-[ext_resource type="PackedScene" uid="uid://dpjd2lj4gckti" path="res://player.tscn" id="1_0xm2m"]
-[ext_resource type="PackedScene" uid="uid://c8osdbawcavsk" path="res://scenes/astroid_big.tscn" id="2_h2yge"]
+[ext_resource type="Script" uid="uid://jror5e6xi6jm" path="res://Main.cs" id="1_ig7tw"]
 
 [node name="Main" type="Node" unique_id=1516318950]
-
-[node name="Camera2D" type="Camera2D" parent="." unique_id=396998139]
-position = Vector2(400, 300)
-
-[node name="Player" parent="." unique_id=1583941560 instance=ExtResource("1_0xm2m")]
-position = Vector2(400, 300)
-
-[node name="Astroid_Big" parent="." unique_id=1998320555 instance=ExtResource("2_h2yge")]
-position = Vector2(105, 125)
-
-[node name="Astroid_Big2" parent="." unique_id=1901960841 instance=ExtResource("2_h2yge")]
-position = Vector2(192, 451)
-
-[node name="Astroid_Big3" parent="." unique_id=1201778460 instance=ExtResource("2_h2yge")]
-position = Vector2(657, 280)
+script = ExtResource("1_ig7tw")

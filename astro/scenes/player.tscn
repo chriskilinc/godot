@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://dpjd2lj4gckti"]
 
-[ext_resource type="Script" uid="uid://jdpgubplx2hd" path="res://Player.cs" id="1_onrkg"]
-[ext_resource type="Texture2D" uid="uid://eyf2ap8hpglw" path="res://assets/PNG/playerShip1_blue.png" id="2_i3pqv"]
+[ext_resource type="Script" uid="uid://jdpgubplx2hd" path="res://Player.cs" id="1_g2els"]
+[ext_resource type="Texture2D" uid="uid://eyf2ap8hpglw" path="res://assets/PNG/playerShip1_blue.png" id="2_qhqgy"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_0xm2m"]
 radius = 37.01351
@@ -9,12 +9,14 @@ radius = 37.01351
 [node name="Player" type="RigidBody2D" unique_id=1583941560]
 contact_monitor = true
 max_contacts_reported = 20
-script = ExtResource("1_onrkg")
+script = ExtResource("1_g2els")
 
 [node name="Sprite2D" type="Sprite2D" parent="." unique_id=2024741062]
-texture = ExtResource("2_i3pqv")
+scale = Vector2(0.75, 0.75)
+texture = ExtResource("2_qhqgy")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1341460122]
+scale = Vector2(0.75, 0.75)
 shape = SubResource("CircleShape2D_0xm2m")
 
 [connection signal="body_entered" from="." to="." method="OnHit"]

@@ -3,6 +3,9 @@ using System;
 
 public partial class Player : RigidBody2DWrap
 {
+    [Signal]
+    public delegate void PlayerDiedEventHandler();
+
     int force = 400;
     float rotationSpeed = MathF.Tau * 0.75f; // 270 degrees per second
 
@@ -44,5 +47,6 @@ public partial class Player : RigidBody2DWrap
     public void OnHit(Node body)
     {
         GD.Print("Player hit by " + body.Name + "!");
+        EmitSignal("PlayerDied");
     }
 }
