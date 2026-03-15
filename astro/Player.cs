@@ -63,7 +63,7 @@ public partial class Player : RigidBody2DWrap
     private void ShootBullet()
     {
         GD.Print("[Player] Shoot bullet");
-        var bullet = bulletScene.Instantiate<Area2D>();
+        var bullet = bulletScene.Instantiate<Bullet>();
         bullet.Rotation = Rotation;
         bullet.Position = Pivot.GlobalPosition;
         GetParent().AddChild(bullet);

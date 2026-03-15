@@ -1,6 +1,18 @@
 [gd_scene format=3 uid="uid://c1o5rejqqb2at"]
 
 [ext_resource type="Script" uid="uid://jror5e6xi6jm" path="res://Main.cs" id="1_ig7tw"]
+[ext_resource type="Texture2D" uid="uid://cf7sxvb70mwco" path="res://assets/black.png" id="2_0xm2m"]
+[ext_resource type="PackedScene" uid="uid://cc8rydwc2wugl" path="res://scenes/UI.tscn" id="3_h2yge"]
 
 [node name="Main" type="Node" unique_id=1516318950]
 script = ExtResource("1_ig7tw")
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=1400191266]
+position = Vector2(402, 301)
+scale = Vector2(3.2226563, 2.4513187)
+texture = ExtResource("2_0xm2m")
+
+[node name="Control" parent="." unique_id=783202132 instance=ExtResource("3_h2yge")]
+z_index = 1
+
+[node name="Astroids" type="Node" parent="." unique_id=1392607619]
