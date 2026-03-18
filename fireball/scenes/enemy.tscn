@@ -1,0 +1,22 @@
+[gd_scene format=3 uid="uid://bk8sb5gff8x04"]
+
+[ext_resource type="Texture2D" uid="uid://d0lm1drfmue4b" path="res://icon.svg" id="1_7p1mj"]
+
+[sub_resource type="PhysicsMaterial" id="PhysicsMaterial_7p1mj"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_0wfyh"]
+size = Vector2(62, 62)
+
+[node name="Enemy" type="RigidBody2D" unique_id=547313387]
+mass = 75.0
+physics_material_override = SubResource("PhysicsMaterial_7p1mj")
+linear_damp = 1.0
+
+[node name="Icon" type="Sprite2D" parent="." unique_id=1343183334]
+position = Vector2(7, 7)
+scale = Vector2(0.5, 0.5)
+texture = ExtResource("1_7p1mj")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=293146435]
+position = Vector2(7, 7)
+shape = SubResource("RectangleShape2D_0wfyh")

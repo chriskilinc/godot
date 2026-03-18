@@ -1,0 +1,28 @@
+[gd_scene format=3 uid="uid://cchac20f28unm"]
+
+[ext_resource type="Texture2D" uid="uid://blle25hyxu0w" path="res://assets/FB00_nyknck/FB001.png" id="1_c8fcr"]
+[ext_resource type="Script" uid="uid://3ntnxc4fp41k" path="res://scenes/Projectile.cs" id="1_q3m7n"]
+
+[sub_resource type="PhysicsMaterial" id="PhysicsMaterial_q3m7n"]
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_c8fcr"]
+radius = 7.9999995
+height = 22.0
+
+[node name="Projectile" type="RigidBody2D" unique_id=1380816967]
+mass = 15.0
+physics_material_override = SubResource("PhysicsMaterial_q3m7n")
+contact_monitor = true
+max_contacts_reported = 10
+script = ExtResource("1_q3m7n")
+
+[node name="Fb001" type="Sprite2D" parent="." unique_id=513302544]
+position = Vector2(-12, 2)
+texture = ExtResource("1_c8fcr")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=369204445]
+position = Vector2(-2, 0)
+rotation = 1.5707964
+shape = SubResource("CapsuleShape2D_c8fcr")
+
+[connection signal="body_entered" from="." to="." method="_on_body_entered"]
