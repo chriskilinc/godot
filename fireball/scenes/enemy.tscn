@@ -13,10 +13,8 @@ physics_material_override = SubResource("PhysicsMaterial_7p1mj")
 linear_damp = 1.0
 
 [node name="Icon" type="Sprite2D" parent="." unique_id=1343183334]
-position = Vector2(7, 7)
 scale = Vector2(0.5, 0.5)
 texture = ExtResource("1_7p1mj")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=293146435]
-position = Vector2(7, 7)
 shape = SubResource("RectangleShape2D_0wfyh")
