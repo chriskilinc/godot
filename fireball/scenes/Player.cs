@@ -69,6 +69,7 @@ public partial class Player : RigidBody2D
 		Projectile projectileInstance = ProjectileScene.Instantiate<Projectile>();
 		projectileInstance.GlobalPosition = _pivot.GlobalPosition;
 		projectileInstance.Rotation = _pivot.GlobalRotation;
+		// TODO: Set projectile properties like damage, speed, etc. if needed
 		GetTree().CurrentScene.AddChild(projectileInstance);
 	}
 }
