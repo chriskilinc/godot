@@ -12,6 +12,9 @@ public partial class Projectile : RigidBody2D
     [Export]
     public float Knockback { get; set; } = 500f;
 
+    [Export]
+    public PackedScene ExplosionScene { get; set; } = GD.Load<PackedScene>("res://scenes/explosion.tscn");
+
     public override void _Ready()
     {
         // Set the projectile's velocity in the direction it's facing
@@ -24,11 +27,12 @@ public partial class Projectile : RigidBody2D
 
     public void _on_body_entered(Node body)
     {
-        // if (body is RigidBody2D rigidBody)
-        // {
-        //     Vector2 direction = (rigidBody.GlobalPosition - GlobalPosition).Normalized();
-        //     rigidBody.ApplyImpulse(direction * Knockback);
-        // }
+        if (ExplosionScene != null)
+        {
+            var explosionInstance = ExplosionScene.Instantiate<Explosion>();
+            explosionInstance.GlobalPosition = GlobalPosition;
+            GetTree().CurrentScene.AddChild(explosionInstance);
+        }
 
         QueueFree();
     }
