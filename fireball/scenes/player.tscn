@@ -15,6 +15,7 @@ contact_monitor = true
 max_contacts_reported = 25
 linear_damp = 1.0
 script = ExtResource("1_qhqgy")
+TurnSpeed = 12.5
 
 [node name="Wizard" type="Sprite2D" parent="." unique_id=1992073508]
 rotation = 1.5707964

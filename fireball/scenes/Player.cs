@@ -10,7 +10,7 @@ public partial class Player : RigidBody2D
 	float acceleration = 15f;
 
 	[Export]
-	public float RotationSpeed { get; set; } = 10f; // Higher = faster turning
+	public float TurnSpeed = 12.5f; // rad/s
 
 	float fireCooldown = 0.5f; // Seconds between shots
 	float fireCooldownRemaining = 0f;
@@ -40,9 +40,11 @@ public partial class Player : RigidBody2D
 		Vector2 toMouse = mouseGlobalPos - GlobalPosition;
 		if (toMouse.LengthSquared() > 0.0001f)
 		{
-			// Compute target angle and smoothly rotate toward it
 			float targetAngle = toMouse.Angle();
-			Rotation = Mathf.LerpAngle(Rotation, targetAngle, (float)(RotationSpeed * delta));
+			float angleDiff = Mathf.AngleDifference(Rotation, targetAngle); // [-π, π]
+
+			// Proportional controller: angular velocity proportional to angle error
+			AngularVelocity = Mathf.Clamp(angleDiff * TurnSpeed, -TurnSpeed, TurnSpeed);
 		}
 
 		if (fireCooldownRemaining > 0)
