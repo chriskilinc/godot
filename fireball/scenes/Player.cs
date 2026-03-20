@@ -3,6 +3,8 @@ using System;
 
 public partial class Player : RigidBody2D
 {
+	const float DEFAULT_HEALTH = 100f;
+
 	[Export]
 	float speed = 300f;
 
@@ -10,18 +12,30 @@ public partial class Player : RigidBody2D
 	float acceleration = 15f;
 
 	[Export]
-	public float TurnSpeed = 12.5f; // rad/s
+	public float TurnSpeed = 13f; // rad/s
 
-	float fireCooldown = 0.5f; // Seconds between shots
+	[Export]
+	public float Health { get; set; } = 100f;
+
+	[Export]
+	public float Damage { get; set; } = 25f;
+
+	float fireCooldown = 0.33f; // Seconds between shots
 	float fireCooldownRemaining = 0f;
 
 	private Node2D _pivot;
 
 	public PackedScene ProjectileScene { get; set; } = GD.Load<PackedScene>("res://scenes/projectile.tscn");
 
+	private ProgressBar _healthBar;
+
 	public override void _Ready()
 	{
 		_pivot = GetNode<Node2D>("Pivot");
+		_healthBar = GetNode<ProgressBar>("HealthBar");
+		_healthBar.MaxValue = Health;
+		_healthBar.Value = Health;
+		_healthBar.Visible = false; // Hide health bar until player takes damage
 	}
 
 	public override void _PhysicsProcess(double delta)
@@ -59,6 +73,23 @@ public partial class Player : RigidBody2D
 		}
 	}
 
+	public void TakeDamage(float damage)
+	{
+		if (!_healthBar.Visible)
+		{
+			_healthBar.Visible = true;
+		}
+
+		Health -= damage;
+		_healthBar.Value = Health;
+		if (Health <= 0)
+		{
+			// Handle player death (e.g., respawn, game over screen, etc.)
+			GD.Print("Player has died!");
+			QueueFree();
+		}
+	}
+
 	private void FireProjectile()
 	{
 		if (ProjectileScene == null || _pivot == null)
@@ -69,7 +100,10 @@ public partial class Player : RigidBody2D
 		Projectile projectileInstance = ProjectileScene.Instantiate<Projectile>();
 		projectileInstance.GlobalPosition = _pivot.GlobalPosition;
 		projectileInstance.Rotation = _pivot.GlobalRotation;
-		// TODO: Set projectile properties like damage, speed, etc. if needed
+
+		// Apply player stats to the projectile
+		projectileInstance.Damage = Damage;
+
 		GetTree().CurrentScene.AddChild(projectileInstance);
 	}
 }

@@ -1,6 +1,7 @@
 [gd_scene format=3 uid="uid://bx2fjycrgp1fn"]
 
 [ext_resource type="Script" uid="uid://cyopdchs3tnp2" path="res://scenes/Player.cs" id="1_qhqgy"]
+[ext_resource type="PackedScene" uid="uid://bxjkdguou0bae" path="res://scenes/health_bar.tscn" id="3_qhqgy"]
 [ext_resource type="Texture2D" uid="uid://cpe5474j23uc8" path="res://assets/wizard.png" id="3_qlg0r"]
 
 [sub_resource type="PhysicsMaterial" id="PhysicsMaterial_g2els"]
@@ -15,7 +16,8 @@ contact_monitor = true
 max_contacts_reported = 25
 linear_damp = 1.0
 script = ExtResource("1_qhqgy")
-TurnSpeed = 12.5
+
+[node name="Camera2D" type="Camera2D" parent="." unique_id=2032660011]
 
 [node name="Wizard" type="Sprite2D" parent="." unique_id=1992073508]
 rotation = 1.5707964
@@ -28,3 +30,7 @@ shape = SubResource("RectangleShape2D_jyhfs")
 
 [node name="Pivot" type="Node2D" parent="." unique_id=1627186689]
 position = Vector2(62, 0)
+
+[node name="HealthBar" parent="." unique_id=49105003 instance=ExtResource("3_qhqgy")]
+offset_top = -55.0
+offset_bottom = -46.0
