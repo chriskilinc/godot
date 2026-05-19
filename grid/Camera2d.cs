@@ -6,7 +6,7 @@ public partial class Camera2d : Camera2D
 	private World? _world;
 
 	[Export]
-	public float MoveSpeed { get; set; } = 700.0f;
+	public float MoveSpeed { get; set; } = 900.0f;
 
 	[Export]
 	public float ZoomStep { get; set; } = 0.1f;
