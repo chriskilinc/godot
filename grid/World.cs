@@ -56,6 +56,7 @@ public partial class World : Node2D
 	private readonly FastNoiseLite _mountainRidgeNoise = new();
 	private readonly FastNoiseLite _mountainRegionNoise = new();
 	private readonly RandomNumberGenerator _resourceRng = new();
+	private UI? _ui;
 	private float _offsetX;
 	private float _offsetY;
 
@@ -63,6 +64,12 @@ public partial class World : Node2D
 	{
 		_resourceRng.Randomize();
 		ConfigureNoise();
+		_ui = GetNodeOrNull<UI>("HUD/UI");
+
+		if (_ui is null)
+		{
+			GD.PrintErr("UI node not found. Tile info display will be disabled.");
+		}
 
 		_offsetX = (GridWidth - 1) * TileSize * 0.5f;
 		_offsetY = (GridHeight - 1) * TileSize * 0.5f;
@@ -95,6 +102,7 @@ public partial class World : Node2D
 
 		if (x < 0 || y < 0 || x >= GridWidth || y >= GridHeight)
 		{
+			_ui?.HideActionPanel();
 			return false;
 		}
 
@@ -113,6 +121,7 @@ public partial class World : Node2D
 		_selectedTile?.SetSelected(false);
 		_selectedTile = tile;
 		_selectedTile.SetSelected(true);
+		_ui?.ShowTileInfo(_selectedTile);
 		PrintTileInfo(_selectedTile);
 	}
 

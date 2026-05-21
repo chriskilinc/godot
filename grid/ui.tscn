@@ -1,0 +1,79 @@
+[gd_scene format=3 uid="uid://bduovw4gwi472"]
+
+[ext_resource type="Script" uid="uid://b3rt2lonoouhg" path="res://UI.cs" id="1_fyqef"]
+
+[node name="UI" type="Control" unique_id=2000149263]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("1_fyqef")
+
+[node name="MarginContainer" type="MarginContainer" parent="." unique_id=146457618]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="ActionPanel" type="Panel" parent="MarginContainer" unique_id=156665980]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(500, 200)
+layout_mode = 2
+size_flags_horizontal = 8
+size_flags_vertical = 8
+mouse_filter = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="MarginContainer/ActionPanel" unique_id=1154413498]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = 8
+
+[node name="HFlowContainer" type="VFlowContainer" parent="MarginContainer/ActionPanel/MarginContainer" unique_id=1896757873]
+layout_mode = 2
+
+[node name="Name" type="Label" parent="MarginContainer/ActionPanel/MarginContainer/HFlowContainer" unique_id=1583936112]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Tile_1_1"
+
+[node name="Biome" type="Label" parent="MarginContainer/ActionPanel/MarginContainer/HFlowContainer" unique_id=63223266]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Biome: Grassland"
+
+[node name="Terrain" type="Label" parent="MarginContainer/ActionPanel/MarginContainer/HFlowContainer" unique_id=797280675]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Terrain: Grassland"
+
+[node name="Elevation" type="Label" parent="MarginContainer/ActionPanel/MarginContainer/HFlowContainer" unique_id=482278897]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Terrain: Grassland"
+
+[node name="Forest" type="Label" parent="MarginContainer/ActionPanel/MarginContainer/HFlowContainer" unique_id=2117332551]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Forest: True"
+
+[node name="Resources" type="Label" parent="MarginContainer/ActionPanel/MarginContainer/HFlowContainer" unique_id=2055374769]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Resources: None"

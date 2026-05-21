@@ -2,9 +2,14 @@
 
 [ext_resource type="Script" uid="uid://2tmqaxnac7p8" path="res://World.cs" id="1_f3sb7"]
 [ext_resource type="Script" uid="uid://dit2joswpt66d" path="res://Camera2d.cs" id="2_fj7yv"]
+[ext_resource type="PackedScene" uid="uid://bduovw4gwi472" path="res://ui.tscn" id="3_tlwt5"]
 
 [node name="World" type="Node2D" unique_id=990217867]
 script = ExtResource("1_f3sb7")
 
 [node name="Camera2D" type="Camera2D" parent="." unique_id=22846292]
 script = ExtResource("2_fj7yv")
+
+[node name="HUD" type="CanvasLayer" parent="." unique_id=431209887]
+
+[node name="UI" parent="HUD" unique_id=2000149263 instance=ExtResource("3_tlwt5")]
