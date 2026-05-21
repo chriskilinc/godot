@@ -1,12 +1,68 @@
 using Godot;
 using System;
 
+#nullable enable
+
+[Tool]
 public partial class World : Node2D
 {
-	private const int GridWidth = 100;
-	private const int GridHeight = 50;
 	private const int TileSize = 32;
-	private const float NoiseFrequency = 0.05f;
+	private static readonly ResourceSpawnRule[] s_resourceSpawnRules =
+	{
+		new(
+			ResourceType.Fish,
+			tile => tile.Biome == BiomeType.Lake,
+			GetFishSpawnMultiplier,
+			world => world.FishSpawnChance,
+			world => world.FishMinAmount,
+			world => world.FishMaxAmount),
+		new(
+			ResourceType.Grains,
+			tile => tile.Biome == BiomeType.Grassland || tile.Biome == BiomeType.Hills,
+			GetGrainsSpawnMultiplier,
+			world => world.GrainsSpawnChance,
+			world => world.GrainsMinAmount,
+			world => world.GrainsMaxAmount),
+		new(
+			ResourceType.Stone,
+			tile => tile.Biome == BiomeType.Hills || tile.Biome == BiomeType.Mountain,
+			GetStoneSpawnMultiplier,
+			world => world.StoneSpawnChance,
+			world => world.StoneMinAmount,
+			world => world.StoneMaxAmount),
+		new(
+			ResourceType.Iron,
+			tile => tile.Biome == BiomeType.Hills || tile.Biome == BiomeType.Mountain,
+			GetIronSpawnMultiplier,
+			world => world.IronSpawnChance,
+			world => world.IronMinAmount,
+			world => world.IronMaxAmount)
+	};
+
+	[ExportGroup("Generation")]
+	[Export(PropertyHint.Range, "1,2147483647,1")]
+	public int Seed { get; set; } = 12345;
+
+	[Export(PropertyHint.Range, "1,512,1")]
+	public int GridWidth { get; set; } = 100;
+
+	[Export(PropertyHint.Range, "1,512,1")]
+	public int GridHeight { get; set; } = 50;
+
+	[Export(PropertyHint.Range, "0.001,0.25,0.001")]
+	public float BaseNoiseFrequency { get; set; } = 0.05f;
+
+	[Export(PropertyHint.Range, "0.001,0.25,0.001")]
+	public float MountainRidgeFrequency { get; set; } = 0.035f;
+
+	[Export(PropertyHint.Range, "0.001,0.25,0.001")]
+	public float MountainRegionFrequency { get; set; } = 0.012f;
+
+	[ExportToolButton("Rebuild World")]
+	public Callable RebuildWorldButton => new Callable(this, MethodName.RebuildWorldFromInspector);
+
+	[ExportToolButton("Reroll Seed")]
+	public Callable RerollSeedButton => new Callable(this, MethodName.RerollSeedAndRebuildFromInspector);
 
 	[Export(PropertyHint.Range, "0,1,0.01")]
 	public float GrainsSpawnChance { get; set; } = 0.08f;
@@ -19,6 +75,34 @@ public partial class World : Node2D
 
 	[Export(PropertyHint.Range, "0,1,0.01")]
 	public float FishSpawnChance { get; set; } = 0.18f;
+
+	[ExportGroup("Biome Thresholds")]
+	[Export(PropertyHint.Range, "0,1,0.01")]
+	public float LakeMaxElevation { get; set; } = TerrainRules.DefaultBiomeSettings.LakeMaxElevation;
+
+	[Export(PropertyHint.Range, "0,1,0.01")]
+	public float MountainMinElevationExclusive { get; set; } = TerrainRules.DefaultBiomeSettings.MountainMinElevationExclusive;
+
+	[Export(PropertyHint.Range, "0,1,0.01")]
+	public float HillsMinElevationExclusive { get; set; } = TerrainRules.DefaultBiomeSettings.HillsMinElevationExclusive;
+
+	[Export(PropertyHint.Range, "0,1,0.01")]
+	public float DesertMaxMoistureExclusive { get; set; } = TerrainRules.DefaultBiomeSettings.DesertMaxMoistureExclusive;
+
+	[Export(PropertyHint.Range, "0,1,0.01")]
+	public float DesertMinTemperatureExclusive { get; set; } = TerrainRules.DefaultBiomeSettings.DesertMinTemperatureExclusive;
+
+	[ExportGroup("Forest Thresholds")]
+	[Export(PropertyHint.Range, "0,1,0.01")]
+	public float ForestMinMoistureExclusive { get; set; } = TerrainRules.DefaultForestSettings.MinMoistureExclusive;
+
+	[Export(PropertyHint.Range, "0,1,0.01")]
+	public float ForestMinTemperatureExclusive { get; set; } = TerrainRules.DefaultForestSettings.MinTemperatureExclusive;
+
+	[Export(PropertyHint.Range, "0,1,0.01")]
+	public float ForestMaxTemperatureExclusive { get; set; } = TerrainRules.DefaultForestSettings.MaxTemperatureExclusive;
+
+	[ExportGroup("Resource Spawning")]
 
 	[Export(PropertyHint.Range, "0.1,3,0.05")]
 	public float ResourceSpawnDensity { get; set; } = 1.35f;
@@ -48,7 +132,7 @@ public partial class World : Node2D
 	public int FishMaxAmount { get; set; } = 36;
 
 	private readonly PackedScene _tileScene = GD.Load<PackedScene>("res://tile.tscn");
-	private Tile[,] _tiles = new Tile[GridWidth, GridHeight];
+	private Tile[,] _tiles = new Tile[1, 1];
 	private Tile? _selectedTile;
 	private readonly FastNoiseLite _elevationNoise = new();
 	private readonly FastNoiseLite _moistureNoise = new();
@@ -57,51 +141,30 @@ public partial class World : Node2D
 	private readonly FastNoiseLite _mountainRegionNoise = new();
 	private readonly RandomNumberGenerator _resourceRng = new();
 	private UI? _ui;
+	private TerrainRules.BiomeSettings _biomeSettings = TerrainRules.DefaultBiomeSettings;
+	private TerrainRules.ForestSettings _forestSettings = TerrainRules.DefaultForestSettings;
 	private float _offsetX;
 	private float _offsetY;
 
 	public override void _Ready()
 	{
-		_resourceRng.Randomize();
-		ConfigureNoise();
-		_ui = GetNodeOrNull<UI>("HUD/UI");
+		InitializeUi();
 
-		if (_ui is null)
+		if (!Engine.IsEditorHint())
 		{
-			GD.PrintErr("UI node not found. Tile info display will be disabled.");
-		}
-
-		_offsetX = (GridWidth - 1) * TileSize * 0.5f;
-		_offsetY = (GridHeight - 1) * TileSize * 0.5f;
-
-		for (int y = 0; y < GridHeight; y++)
-		{
-			for (int x = 0; x < GridWidth; x++)
-			{
-				var baseElevation = Sample01(_elevationNoise, x, y);
-				var elevation = ApplyMountainRanges(baseElevation, x, y);
-
-				var tile = _tileScene.Instantiate<Tile>();
-				tile.Name = $"Tile_{x}_{y}";
-				tile.Position = new Vector2(x * TileSize - _offsetX, y * TileSize - _offsetY);
-				tile.InitializeTerrain(
-					elevation,
-					Sample01(_moistureNoise, x, y),
-					SampleTemperature01(x, y));
-				SpawnResourcesForTile(tile);
-				AddChild(tile);
-				_tiles[x, y] = tile;
-			}
+			RebuildWorld();
 		}
 	}
 
 	public bool TrySelectTileAtWorld(Vector2 worldPosition)
 	{
-		var x = Mathf.RoundToInt((worldPosition.X + _offsetX) / TileSize);
-		var y = Mathf.RoundToInt((worldPosition.Y + _offsetY) / TileSize);
+		var coordinates = WorldToGrid(worldPosition);
+		var x = coordinates.X;
+		var y = coordinates.Y;
 
-		if (x < 0 || y < 0 || x >= GridWidth || y >= GridHeight)
+		if (x < 0 || y < 0 || x >= CurrentGridWidth || y >= CurrentGridHeight)
 		{
+			ClearSelection();
 			_ui?.HideActionPanel();
 			return false;
 		}
@@ -125,31 +188,171 @@ public partial class World : Node2D
 		PrintTileInfo(_selectedTile);
 	}
 
-	private void ConfigureNoise()
+	private void ClearSelection()
+	{
+		if (_selectedTile is null)
+		{
+			return;
+		}
+
+		_selectedTile.SetSelected(false);
+		_selectedTile = null;
+	}
+
+	private void InitializeGeneration()
+	{
+		_biomeSettings = BuildBiomeSettings();
+		_forestSettings = BuildForestSettings();
+		var rng = CreateSeededRng();
+		_resourceRng.Seed = rng.Randi();
+		ConfigureNoise(rng);
+	}
+
+	private void RebuildWorld()
+	{
+		if (!IsInsideTree())
+		{
+			return;
+		}
+
+		ClearSelection();
+		_ui?.HideActionPanel();
+		ClearGeneratedTiles();
+		InitializeGeneration();
+		ComputeGridOffsets();
+		GenerateWorld();
+	}
+
+	private void RebuildWorldFromInspector()
+	{
+		RebuildWorld();
+	}
+
+	private void RerollSeedAndRebuildFromInspector()
 	{
 		var rng = new RandomNumberGenerator();
 		rng.Randomize();
+		Seed = rng.RandiRange(1, int.MaxValue);
+		NotifyPropertyListChanged();
+		RebuildWorld();
+	}
 
+	private void InitializeUi()
+	{
+		_ui = GetNodeOrNull<UI>("HUD/UI");
+
+		if (_ui is null)
+		{
+			GD.PrintErr("UI node not found. Tile info display will be disabled.");
+		}
+	}
+
+	private void ComputeGridOffsets()
+	{
+		_offsetX = (CurrentGridWidth - 1) * TileSize * 0.5f;
+		_offsetY = (CurrentGridHeight - 1) * TileSize * 0.5f;
+	}
+
+	private void GenerateWorld()
+	{
+		_tiles = new Tile[CurrentGridWidth, CurrentGridHeight];
+
+		for (int y = 0; y < CurrentGridHeight; y++)
+		{
+			for (int x = 0; x < CurrentGridWidth; x++)
+			{
+				var tile = CreateTile(x, y);
+				AddChild(tile);
+				_tiles[x, y] = tile;
+			}
+		}
+	}
+
+	private Tile CreateTile(int x, int y)
+	{
+		var baseElevation = Sample01(_elevationNoise, x, y);
+		var elevation = ApplyMountainRanges(baseElevation, x, y);
+		var moisture = Sample01(_moistureNoise, x, y);
+		var temperature = SampleTemperature01(x, y);
+
+		var tile = _tileScene.Instantiate<Tile>();
+		tile.Name = $"Tile_{x}_{y}";
+		tile.Position = GridToWorld(x, y);
+		tile.InitializeTerrain(elevation, moisture, temperature, _biomeSettings, _forestSettings);
+		SpawnResourcesForTile(tile);
+		return tile;
+	}
+
+	private TerrainRules.BiomeSettings BuildBiomeSettings()
+	{
+		return new TerrainRules.BiomeSettings(
+			LakeMaxElevation,
+			MountainMinElevationExclusive,
+			HillsMinElevationExclusive,
+			DesertMaxMoistureExclusive,
+			DesertMinTemperatureExclusive);
+	}
+
+	private TerrainRules.ForestSettings BuildForestSettings()
+	{
+		return new TerrainRules.ForestSettings(
+			ForestMinMoistureExclusive,
+			ForestMinTemperatureExclusive,
+			ForestMaxTemperatureExclusive);
+	}
+
+	private void ClearGeneratedTiles()
+	{
+		foreach (var child in GetChildren())
+		{
+			if (child is Tile tile)
+			{
+				tile.QueueFree();
+			}
+		}
+	}
+
+	private Vector2 GridToWorld(int x, int y)
+	{
+		return new Vector2(x * TileSize - _offsetX, y * TileSize - _offsetY);
+	}
+
+	private Vector2I WorldToGrid(Vector2 worldPosition)
+	{
+		return new Vector2I(
+			Mathf.RoundToInt((worldPosition.X + _offsetX) / TileSize),
+			Mathf.RoundToInt((worldPosition.Y + _offsetY) / TileSize));
+	}
+
+	private RandomNumberGenerator CreateSeededRng()
+	{
+		var rng = new RandomNumberGenerator();
+		rng.Seed = (ulong)Math.Max(1, Seed);
+		return rng;
+	}
+
+	private void ConfigureNoise(RandomNumberGenerator rng)
+	{
 		_elevationNoise.NoiseType = FastNoiseLite.NoiseTypeEnum.Perlin;
-		_elevationNoise.Frequency = NoiseFrequency;
+		_elevationNoise.Frequency = BaseNoiseFrequency;
 		_elevationNoise.Seed = rng.RandiRange(1, int.MaxValue);
 
 		_moistureNoise.NoiseType = FastNoiseLite.NoiseTypeEnum.Simplex;
-		_moistureNoise.Frequency = NoiseFrequency;
+		_moistureNoise.Frequency = BaseNoiseFrequency;
 		_moistureNoise.Seed = rng.RandiRange(1, int.MaxValue);
 
 		_temperatureNoise.NoiseType = FastNoiseLite.NoiseTypeEnum.Perlin;
-		_temperatureNoise.Frequency = NoiseFrequency;
+		_temperatureNoise.Frequency = BaseNoiseFrequency;
 		_temperatureNoise.Seed = rng.RandiRange(1, int.MaxValue);
 
 		_mountainRidgeNoise.NoiseType = FastNoiseLite.NoiseTypeEnum.Simplex;
-		_mountainRidgeNoise.Frequency = 0.035f;
+		_mountainRidgeNoise.Frequency = MountainRidgeFrequency;
 		_mountainRidgeNoise.FractalType = FastNoiseLite.FractalTypeEnum.Fbm;
 		_mountainRidgeNoise.FractalOctaves = 3;
 		_mountainRidgeNoise.Seed = rng.RandiRange(1, int.MaxValue);
 
 		_mountainRegionNoise.NoiseType = FastNoiseLite.NoiseTypeEnum.Perlin;
-		_mountainRegionNoise.Frequency = 0.012f;
+		_mountainRegionNoise.Frequency = MountainRegionFrequency;
 		_mountainRegionNoise.Seed = rng.RandiRange(1, int.MaxValue);
 	}
 
@@ -178,7 +381,8 @@ public partial class World : Node2D
 	private float SampleTemperature01(int x, int y)
 	{
 		// Adds a simple hot-equator/cold-pole gradient, with noise for local variation.
-		var latitude = Mathf.Abs(((float)y / (GridHeight - 1)) - 0.5f) * 2.0f;
+		var normalizedY = CurrentGridHeight <= 1 ? 0.5f : (float)y / (CurrentGridHeight - 1);
+		var latitude = Mathf.Abs(normalizedY - 0.5f) * 2.0f;
 		var latitudeTemp = 1.0f - latitude;
 		var noiseTemp = Sample01(_temperatureNoise, x, y);
 		return Mathf.Clamp((latitudeTemp * 0.7f) + (noiseTemp * 0.3f), 0.0f, 1.0f);
@@ -186,25 +390,20 @@ public partial class World : Node2D
 
 	private void SpawnResourcesForTile(Tile tile)
 	{
-		if (tile.Biome == BiomeType.Lake)
+		foreach (var rule in s_resourceSpawnRules)
 		{
-			var fishChance = AdjustedChance(FishSpawnChance * GetFishSpawnMultiplier(tile));
-			TrySpawnResource(tile, ResourceType.Fish, fishChance, FishMinAmount, FishMaxAmount);
-			return;
-		}
+			if (!rule.CanSpawn(tile))
+			{
+				continue;
+			}
 
-		if (tile.Biome == BiomeType.Grassland || tile.Biome == BiomeType.Hills)
-		{
-			var grainsChance = AdjustedChance(GrainsSpawnChance * GetGrainsSpawnMultiplier(tile));
-			TrySpawnResource(tile, ResourceType.Grains, grainsChance, GrainsMinAmount, GrainsMaxAmount);
-		}
-
-		if (tile.Biome == BiomeType.Hills || tile.Biome == BiomeType.Mountain)
-		{
-			var stoneChance = AdjustedChance(StoneSpawnChance * GetStoneSpawnMultiplier(tile));
-			var ironChance = AdjustedChance(IronSpawnChance * GetIronSpawnMultiplier(tile));
-			TrySpawnResource(tile, ResourceType.Stone, stoneChance, StoneMinAmount, StoneMaxAmount);
-			TrySpawnResource(tile, ResourceType.Iron, ironChance, IronMinAmount, IronMaxAmount);
+			var chance = AdjustedChance(rule.GetBaseChance(this) * rule.GetMultiplier(tile));
+			TrySpawnResource(
+				tile,
+				rule.ResourceType,
+				chance,
+				rule.GetMinAmount(this),
+				rule.GetMaxAmount(this));
 		}
 	}
 
@@ -259,4 +458,23 @@ public partial class World : Node2D
 	{
 		GD.Print($"{tile.Name} | BaseBiome: {tile.Biome} | Terrain: {tile.TerrainLabel} | Forest: {tile.HasForest} | Resources: {tile.GetResourcesLabel()} | E:{tile.Elevation:0.00} M:{tile.Moisture:0.00} T:{tile.Temperature:0.00}");
 	}
+
+	private sealed class ResourceSpawnRule(
+		ResourceType resourceType,
+		Func<Tile, bool> canSpawn,
+		Func<Tile, float> getMultiplier,
+		Func<World, float> getBaseChance,
+		Func<World, int> getMinAmount,
+		Func<World, int> getMaxAmount)
+	{
+		public ResourceType ResourceType { get; } = resourceType;
+		public Func<Tile, bool> CanSpawn { get; } = canSpawn;
+		public Func<Tile, float> GetMultiplier { get; } = getMultiplier;
+		public Func<World, float> GetBaseChance { get; } = getBaseChance;
+		public Func<World, int> GetMinAmount { get; } = getMinAmount;
+		public Func<World, int> GetMaxAmount { get; } = getMaxAmount;
+	}
+
+	private int CurrentGridWidth => Math.Max(1, GridWidth);
+	private int CurrentGridHeight => Math.Max(1, GridHeight);
 }

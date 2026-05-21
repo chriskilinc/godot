@@ -1,27 +1,51 @@
 using Godot;
+using System;
 
 public static class TerrainRules
 {
+    public static readonly BiomeSettings DefaultBiomeSettings = new(
+        0.25f,
+        0.80f,
+        0.62f,
+        0.25f,
+        0.60f);
+	public static readonly ForestSettings DefaultForestSettings = new(
+		0.55f,
+		0.30f,
+		0.80f);
+
+    private static readonly BiomeRule[] s_biomeRules =
+    {
+        new(BiomeType.Lake, maxElevationSelector: settings => settings.LakeMaxElevation),
+        new(BiomeType.Mountain, minElevationExclusiveSelector: settings => settings.MountainMinElevationExclusive),
+        new(BiomeType.Hills, minElevationExclusiveSelector: settings => settings.HillsMinElevationExclusive),
+        new(
+            BiomeType.Desert,
+            maxMoistureExclusiveSelector: settings => settings.DesertMaxMoistureExclusive,
+            minTemperatureExclusiveSelector: settings => settings.DesertMinTemperatureExclusive)
+    };
+    private static readonly ForestRule[] s_forestRules =
+    {
+        new(
+            biome => biome == BiomeType.Grassland || biome == BiomeType.Hills,
+            minMoistureExclusiveSelector: settings => settings.MinMoistureExclusive,
+            minTemperatureExclusiveSelector: settings => settings.MinTemperatureExclusive,
+            maxTemperatureExclusiveSelector: settings => settings.MaxTemperatureExclusive)
+    };
+
     public static BiomeType DetermineBiome(float elevation, float moisture, float temperature)
     {
-        if (elevation < 0.25f)
-        {
-            return BiomeType.Lake;
-        }
+        return DetermineBiome(elevation, moisture, temperature, DefaultBiomeSettings);
+    }
 
-        if (elevation > 0.80f)
+    public static BiomeType DetermineBiome(float elevation, float moisture, float temperature, BiomeSettings settings)
+    {
+        foreach (var rule in s_biomeRules)
         {
-            return BiomeType.Mountain;
-        }
-
-        if (elevation > 0.62f)
-        {
-            return BiomeType.Hills;
-        }
-
-        if (moisture < 0.25f && temperature > 0.6f)
-        {
-            return BiomeType.Desert;
+            if (rule.Matches(elevation, moisture, temperature, settings))
+            {
+                return rule.Biome;
+            }
         }
 
         return BiomeType.Grassland;
@@ -29,12 +53,20 @@ public static class TerrainRules
 
     public static bool DetermineForest(BiomeType biome, float moisture, float temperature)
     {
-        if (biome != BiomeType.Grassland && biome != BiomeType.Hills)
+        return DetermineForest(biome, moisture, temperature, DefaultForestSettings);
+    }
+
+    public static bool DetermineForest(BiomeType biome, float moisture, float temperature, ForestSettings settings)
+    {
+        foreach (var rule in s_forestRules)
         {
-            return false;
+            if (rule.Matches(biome, moisture, temperature, settings))
+            {
+                return true;
+            }
         }
 
-        return moisture > 0.55f && temperature > 0.30f && temperature < 0.80f;
+        return false;
     }
 
     public static Color GetBiomeColor(BiomeType biome)
@@ -48,5 +80,96 @@ public static class TerrainRules
             BiomeType.Mountain => new Color(0.49f, 0.49f, 0.51f),
             _ => Colors.White
         };
+    }
+
+    public readonly struct BiomeSettings(
+        float lakeMaxElevation,
+        float mountainMinElevationExclusive,
+        float hillsMinElevationExclusive,
+        float desertMaxMoistureExclusive,
+        float desertMinTemperatureExclusive)
+    {
+        public float LakeMaxElevation { get; } = lakeMaxElevation;
+        public float MountainMinElevationExclusive { get; } = mountainMinElevationExclusive;
+        public float HillsMinElevationExclusive { get; } = hillsMinElevationExclusive;
+        public float DesertMaxMoistureExclusive { get; } = desertMaxMoistureExclusive;
+        public float DesertMinTemperatureExclusive { get; } = desertMinTemperatureExclusive;
+    }
+
+    public readonly struct ForestSettings(
+        float minMoistureExclusive,
+        float minTemperatureExclusive,
+        float maxTemperatureExclusive)
+    {
+        public float MinMoistureExclusive { get; } = minMoistureExclusive;
+        public float MinTemperatureExclusive { get; } = minTemperatureExclusive;
+        public float MaxTemperatureExclusive { get; } = maxTemperatureExclusive;
+    }
+
+    private readonly struct BiomeRule(
+        BiomeType biome,
+        Func<BiomeSettings, float> maxElevationSelector = null,
+        Func<BiomeSettings, float> minElevationExclusiveSelector = null,
+        Func<BiomeSettings, float> maxMoistureExclusiveSelector = null,
+        Func<BiomeSettings, float> minTemperatureExclusiveSelector = null)
+    {
+        public BiomeType Biome { get; } = biome;
+
+        public bool Matches(float elevation, float moisture, float temperature, BiomeSettings settings)
+        {
+            if (maxElevationSelector is not null && elevation >= maxElevationSelector(settings))
+            {
+                return false;
+            }
+
+            if (minElevationExclusiveSelector is not null && elevation <= minElevationExclusiveSelector(settings))
+            {
+                return false;
+            }
+
+            if (maxMoistureExclusiveSelector is not null && moisture >= maxMoistureExclusiveSelector(settings))
+            {
+                return false;
+            }
+
+            if (minTemperatureExclusiveSelector is not null && temperature <= minTemperatureExclusiveSelector(settings))
+            {
+                return false;
+            }
+
+            return true;
+        }
+    }
+
+    private readonly struct ForestRule(
+        Func<BiomeType, bool> canSpawn,
+        Func<ForestSettings, float> minMoistureExclusiveSelector = null,
+        Func<ForestSettings, float> minTemperatureExclusiveSelector = null,
+        Func<ForestSettings, float> maxTemperatureExclusiveSelector = null)
+    {
+        public bool Matches(BiomeType biome, float moisture, float temperature, ForestSettings settings)
+        {
+            if (!canSpawn(biome))
+            {
+                return false;
+            }
+
+            if (minMoistureExclusiveSelector is not null && moisture <= minMoistureExclusiveSelector(settings))
+            {
+                return false;
+            }
+
+            if (minTemperatureExclusiveSelector is not null && temperature <= minTemperatureExclusiveSelector(settings))
+            {
+                return false;
+            }
+
+            if (maxTemperatureExclusiveSelector is not null && temperature >= maxTemperatureExclusiveSelector(settings))
+            {
+                return false;
+            }
+
+            return true;
+        }
     }
 }
