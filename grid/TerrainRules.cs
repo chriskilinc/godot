@@ -4,25 +4,21 @@ using System;
 public static class TerrainRules
 {
     public static readonly BiomeSettings DefaultBiomeSettings = new(
-        0.25f,
-        0.80f,
-        0.62f,
-        0.25f,
+        0.23f,
+        0.78f,
+        0.60f,
+        0.15f,
         0.60f);
 	public static readonly ForestSettings DefaultForestSettings = new(
-		0.55f,
-		0.30f,
-		0.80f);
+		0.48f,
+		0.22f,
+		0.86f);
 
     private static readonly BiomeRule[] s_biomeRules =
     {
         new(BiomeType.Lake, maxElevationSelector: settings => settings.LakeMaxElevation),
         new(BiomeType.Mountain, minElevationExclusiveSelector: settings => settings.MountainMinElevationExclusive),
-        new(BiomeType.Hills, minElevationExclusiveSelector: settings => settings.HillsMinElevationExclusive),
-        new(
-            BiomeType.Desert,
-            maxMoistureExclusiveSelector: settings => settings.DesertMaxMoistureExclusive,
-            minTemperatureExclusiveSelector: settings => settings.DesertMinTemperatureExclusive)
+        new(BiomeType.Hills, minElevationExclusiveSelector: settings => settings.HillsMinElevationExclusive)
     };
     private static readonly ForestRule[] s_forestRules =
     {
@@ -69,15 +65,53 @@ public static class TerrainRules
         return false;
     }
 
+    public static float CalculateFertility(BiomeType biome, float elevation, float moisture, float temperature, bool hasForest, WaterKind waterKind)
+    {
+        if (waterKind == WaterKind.Lake || waterKind == WaterKind.Ocean)
+        {
+            return 0.0f;
+        }
+
+        var moistureSuitability = Mathf.Clamp(1.0f - (Mathf.Abs(moisture - 0.62f) * 1.7f), 0.0f, 1.0f);
+        var temperatureSuitability = Mathf.Clamp(1.0f - (Mathf.Abs(temperature - 0.57f) * 1.6f), 0.0f, 1.0f);
+        var elevationSuitability = Mathf.Clamp(1.0f - (Mathf.Max(0.0f, elevation - 0.58f) * 1.6f), 0.25f, 1.0f);
+        var lowlandBonus = Mathf.Clamp((0.38f - elevation) * 0.35f, -0.08f, 0.10f);
+
+        var biomeModifier = biome switch
+        {
+            BiomeType.Grassland => 0.12f,
+            BiomeType.Hills => -0.06f,
+            BiomeType.Mountain => -0.35f,
+            BiomeType.Desert => -0.20f,
+            _ => 0.0f
+        };
+
+        var forestBonus = hasForest ? 0.05f : 0.0f;
+        var fertility = (moistureSuitability * 0.45f)
+            + (temperatureSuitability * 0.30f)
+            + (elevationSuitability * 0.25f)
+            + lowlandBonus
+            + biomeModifier
+            + forestBonus;
+
+        if (waterKind == WaterKind.River)
+        {
+            // River tiles remain somewhat fertile (floodplain effect), but less than solid farmland.
+            fertility = (fertility * 0.55f) + 0.12f;
+        }
+
+        return Mathf.Clamp(fertility, 0.0f, 1.0f);
+    }
+
     public static Color GetBiomeColor(BiomeType biome)
     {
         return biome switch
         {
-            BiomeType.Lake => new Color("5574a0"),
-            BiomeType.Desert => new Color(0.63f, 0.57f, 0.40f),
-            BiomeType.Grassland => new Color(0.33f, 0.49f, 0.31f),
-            BiomeType.Hills => new Color(0.30f, 0.42f, 0.29f),
-            BiomeType.Mountain => new Color(0.49f, 0.49f, 0.51f),
+            BiomeType.Lake => new Color(0.28f, 0.43f, 0.58f),
+            BiomeType.Desert => new Color(0.52f, 0.52f, 0.47f),
+            BiomeType.Grassland => new Color(0.34f, 0.50f, 0.33f),
+            BiomeType.Hills => new Color(0.30f, 0.44f, 0.31f),
+            BiomeType.Mountain => new Color(0.56f, 0.57f, 0.58f),
             _ => Colors.White
         };
     }

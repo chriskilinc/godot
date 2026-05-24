@@ -56,6 +56,11 @@ public sealed class TileResources
         return depleted > 0;
     }
 
+    public void Clear()
+    {
+        _resources.Clear();
+    }
+
     public string ToDebugLabel()
     {
         if (_resources.Count == 0)

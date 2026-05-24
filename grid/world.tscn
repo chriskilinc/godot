@@ -6,6 +6,10 @@
 
 [node name="World" type="Node2D" unique_id=990217867]
 script = ExtResource("1_f3sb7")
+MountainMinElevationExclusive = 0.8
+RiverSourceCount = 9
+RiverSourceMinSpacing = 10
+RiverTurnPenalty = 0.35
 
 [node name="Camera2D" type="Camera2D" parent="." unique_id=22846292]
 script = ExtResource("2_fj7yv")

@@ -27,8 +27,11 @@ public partial class UI : Control
     {
         _name.Text = tile.Name;
         _biome.Text = $"Biome: {tile.Biome}";
-        _elevation.Text = $"Elevation: {tile.Elevation:F2}, Moisture: {tile.Moisture:F2}, Temp: {tile.Temperature:F2}";
-        _terrain.Text = $"Terrain: {tile.TerrainLabel}";
+        _elevation.Text = $"Elevation: {tile.Elevation:F2}, Moisture: {tile.Moisture:F2}, Temp: {tile.Temperature:F2}, Fertility: {tile.Fertility:F2}";
+        var waterLabel = tile.IsWater
+            ? $"{tile.WaterKind} (Depth {tile.WaterDepth:F2})"
+            : "None";
+        _terrain.Text = $"Terrain: {tile.TerrainLabel}, Water: {waterLabel}";
         _forest.Text = tile.HasForest ? "Has Forest" : "No Forest";
         _resources.Text = tile.HasAnyResources ? $"Resources: {tile.GetResourcesLabel()}" : "No Resources";
         _actionPanel.Visible = true;
