@@ -1,0 +1,79 @@
+[gd_scene format=3 uid="uid://dhx2w1wiuvgln"]
+
+[ext_resource type="Script" uid="uid://dckgon0kinkpp" path="res://CharacterBody3d.cs" id="1_aqk2v"]
+[ext_resource type="Script" uid="uid://bd046eokvcnu2" path="res://addons/phantom_camera/scripts/phantom_camera_host/phantom_camera_host.gd" id="1_f3sb7"]
+[ext_resource type="Script" uid="uid://csjccrhj5wnx7" path="res://addons/phantom_camera/scripts/phantom_camera/phantom_camera_3d.gd" id="2_tlwt5"]
+[ext_resource type="Script" uid="uid://8umksf8e80fw" path="res://addons/phantom_camera/scripts/resources/tween_resource.gd" id="3_aqk2v"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_sat2g"]
+size = Vector3(100, 1, 100)
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_sat2g"]
+size = Vector2(100, 100)
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_sat2g"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_2ejlt"]
+
+[sub_resource type="Resource" id="Resource_036b0"]
+script = ExtResource("3_aqk2v")
+
+[sub_resource type="BoxMesh" id="BoxMesh_sat2g"]
+
+[node name="World" type="Node3D" unique_id=1661421064]
+
+[node name="StaticBody3D" type="StaticBody3D" parent="." unique_id=1310661249]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="StaticBody3D" unique_id=221294087]
+shape = SubResource("BoxShape3D_sat2g")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="StaticBody3D/CollisionShape3D" unique_id=261407341]
+mesh = SubResource("PlaneMesh_sat2g")
+
+[node name="CharacterBody3D" type="CharacterBody3D" parent="." unique_id=1267356983]
+script = ExtResource("1_aqk2v")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="CharacterBody3D" unique_id=737688425]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+mesh = SubResource("CapsuleMesh_sat2g")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="CharacterBody3D" unique_id=305746315]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+shape = SubResource("CapsuleShape3D_2ejlt")
+
+[node name="OmniLight3D" type="OmniLight3D" parent="CharacterBody3D" unique_id=458189732]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.4896092, 0)
+omni_range = 19.005
+
+[node name="Camera3D" type="Camera3D" parent="." unique_id=88013003]
+physics_interpolation_mode = 1
+transform = Transform3D(1, 0, 0, 0, 0.90433925, 0.42681435, 0, -0.42681435, 0.90433925, 0, 2.14, 3.21)
+top_level = true
+
+[node name="PhantomCameraHost" type="Node" parent="Camera3D" unique_id=271288778]
+process_priority = 300
+process_physics_priority = 300
+script = ExtResource("1_f3sb7")
+metadata/_custom_type_script = "uid://bd046eokvcnu2"
+
+[node name="PhantomCamera3D" type="Node3D" parent="." unique_id=35153798 node_paths=PackedStringArray("follow_target", "look_at_target")]
+transform = Transform3D(1, 0, 0, 0, 0.90433925, 0.42681435, 0, -0.42681435, 0.90433925, 0, 2.14, 3.21)
+script = ExtResource("2_tlwt5")
+follow_mode = 6
+follow_target = NodePath("../CharacterBody3D")
+look_at_mode = 2
+look_at_target = NodePath("../CharacterBody3D")
+tween_resource = SubResource("Resource_036b0")
+follow_offset = Vector3(0, 2.14, 2)
+follow_damping = true
+follow_distance = 1.21
+spring_length = 1.21
+look_at_offset = Vector3(0, 0.625, 0)
+align_transform_with_view = Callable()
+align_position_with_view = Callable()
+align_rotation_with_view = Callable()
+metadata/_custom_type_script = "uid://csjccrhj5wnx7"
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=1268210641]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, -9)
+mesh = SubResource("BoxMesh_sat2g")
